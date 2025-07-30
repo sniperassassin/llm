@@ -184,8 +184,15 @@ test_loader = DataLoader(
 
 model = GPTModel(NEW_CONFIG)
 model.to(device)
-#model.load_state_dict(torch.load("gptModel-355M.pth"))
-#model.eval()
+# Load with error handling
+try:
+    checkpoint = torch.load("gptModel-355M.pth", map_location=device)
+    model.load_state_dict(checkpoint)
+    print("Pretrained weights loaded successfully")
+except Exception as e:
+    print(f"Error loading weights: {e}")
+
+model.train()
 optimizer = torch.optim.AdamW(model.parameters(), lr=0.00005, weight_decay=0.1)
 
 num_epochs = 1
