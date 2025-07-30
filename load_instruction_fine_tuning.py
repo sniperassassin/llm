@@ -10,8 +10,9 @@ tokenizer = tiktoken.get_encoding("gpt2")
 print(tokenizer.encode("<|endoftext|>", allowed_special={"<|endoftext|>"}))
 torch.manual_seed(123)
 CHOOSE_MODEL = "gpt2-medium (355M)"
-base_config = BASE_CONFIG
+base_config = BASE_CONFIG.copy()
 base_config.update(model_configs[CHOOSE_MODEL])
+base_config.update({"context_length": 1024, "qkv_bias": True})
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 model = GPTModel(base_config)

@@ -2,7 +2,7 @@ import tensorflow as tf
 import tqdm
 from gpt_download import download_and_load_gpt2
 from model import GPTModel
-from utils import assign, token_ids_to_text, text_to_token_ids, generate
+from utils import assign, token_ids_to_text, text_to_token_ids, generate, model_configs, BASE_CONFIG
 import tiktoken
 import torch
 import numpy as np
@@ -18,16 +18,10 @@ GPT_CONFIG_124M = {
     "qkv_bias": False      # Query-key-value bias
 }
 
-model_configs = {
-    "gpt2-small (124M)": {"emb_dim": 768, "n_layers": 12, "n_heads": 12},
-    "gpt2-medium (355M)": {"emb_dim": 1024, "n_layers": 24, "n_heads": 16},
-    "gpt2-large (774M)": {"emb_dim": 1280, "n_layers": 36, "n_heads": 20},
-    "gpt2-xl (1558M)": {"emb_dim": 1600, "n_layers": 48, "n_heads": 25},
-}
-
 # Copy the base configuration and update with specific model settings
-model_name = "gpt2-small (124M)"  # Example model name
-NEW_CONFIG = GPT_CONFIG_124M.copy()
+model_name = "gpt2-medium (355M)"  # Example model name
+model_size = "355M"
+NEW_CONFIG = BASE_CONFIG.copy()
 NEW_CONFIG.update(model_configs[model_name])
 NEW_CONFIG.update({"context_length": 1024, "qkv_bias": True})
 
@@ -95,7 +89,7 @@ def load_weights_into_gpt(gpt, params):
     gpt.out_head.weight = assign(gpt.out_head.weight, params["wte"])
     
 
-settings, params = download_and_load_gpt2(model_size="124M", models_dir="gpt2")
+settings, params = download_and_load_gpt2(model_size=model_size, models_dir="gpt2")
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 load_weights_into_gpt(gpt, params)
 gpt.to(device)
@@ -112,3 +106,14 @@ token_ids = generate(
 )
 
 print("Output text:\n", token_ids_to_text(token_ids, tokenizer))
+
+# If you want to save the model weights and use it for inference later
+torch.save(gpt.state_dict(), "gptModel-355M.pth")
+
+# If you want to save this as checkpint for training later then we should save the optimizer state as well
+# torch.save({
+#     'epoch': epoch,
+#     'model_state_dict': gpt.state_dict(),
+#     'optimizer_state_dict': optimizer.state_dict(),
+#     'loss': loss,
+#}, "gptModel-355M-checkpoint.pth")

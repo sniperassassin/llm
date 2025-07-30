@@ -6,19 +6,16 @@ import torch
 from functools import partial
 from torch.utils.data import DataLoader, Dataset
 from model import GPTModel
-from utils import GPT_CONFIG_124M, token_ids_to_text, text_to_token_ids, generate
 from train_model import train_model_simple
 import time
 import re
-from load_pretrained_weight import model_configs
+from utils import model_configs, BASE_CONFIG
 
+model_name = "gpt2-medium (355M)"
+NEW_CONFIG = BASE_CONFIG.copy()
+NEW_CONFIG.update(model_configs[model_name])
+NEW_CONFIG.update({"context_length": 1024, "qkv_bias": True})
 
-BASE_CONFIG = {
-    "vocab_size": 50257,     # Vocabulary size
-    "context_length": 1024,  # Context length
-    "drop_rate": 0.0,        # Dropout rate
-    "qkv_bias": True         # Query-key-value bias
-}
 torch.manual_seed(123)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -155,7 +152,6 @@ num_workers = 0
 batch_size = 8
 
 torch.manual_seed(123)
-
 train_dataset = InstructionDataset(train_data, tokenizer)
 train_loader = DataLoader(
     train_dataset,
@@ -186,8 +182,10 @@ test_loader = DataLoader(
     num_workers=num_workers
 )
 
-model = GPTModel(GPT_CONFIG_124M)
+model = GPTModel(NEW_CONFIG)
 model.to(device)
+#model.load_state_dict(torch.load("gptModel-355M.pth"))
+#model.eval()
 optimizer = torch.optim.AdamW(model.parameters(), lr=0.00005, weight_decay=0.1)
 
 num_epochs = 1
@@ -202,10 +200,6 @@ end_time = time.time()
 execution_time_minutes = (end_time - start_time) / 60
 print(f"Training completed in {execution_time_minutes:.2f} minutes.")
 
-CHOOSE_MODEL = "gpt2-medium (355M)"
-
-BASE_CONFIG.update(model_configs[CHOOSE_MODEL])
-
-file_name = f"{re.sub(r'[ ()]', '', CHOOSE_MODEL) }-sft.pth"
+file_name = f"{re.sub(r'[ ()]', '', model_name) }-instruction-sft.pth"
 torch.save(model.state_dict(), file_name)
 print(f"Model saved as {file_name}")

@@ -22,14 +22,10 @@ else:
     with open(file_path, "r", encoding="utf-8") as file:
         text_data = file.read()
 
-
 train_ratio = 0.90
 split_idx = int(train_ratio * len(text_data))
 train_data = text_data[:split_idx]
 val_data = text_data[split_idx:]
-
-
-
 
 train_loader = create_dataloader_v1(   #9 training set batches of input [2,256] and target [2,256] 2input with 256 context length
     train_data,

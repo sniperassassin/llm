@@ -1,5 +1,5 @@
 import torch
-from utils import GPT_CONFIG_124M, text_to_token_ids, token_ids_to_text, generate
+from utils import text_to_token_ids, token_ids_to_text, generate
 
 def train_model_simple(model, train_loader, val_loader, optimizer, device, num_epochs,
                        eval_freq, eval_iter, start_context, tokenizer):
