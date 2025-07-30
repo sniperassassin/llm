@@ -17,8 +17,8 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 model = GPTModel(base_config)
 model.to(device)
-model.load_state_dict(torch.load("gpt2-medium355M-sft.pth"))
-##model.eval()
+model.load_state_dict(torch.load("gpt2-medium355M-instruction-sft.pth"))
+model.eval()
 
 
 file_path = "instruction-data.json"
@@ -28,9 +28,9 @@ train_portion = int(len(data) * 0.85)  # 85% for training
 test_portion = int(len(data) * 0.1)    # 10% for testing
 val_portion = len(data) - train_portion - test_portion  # Remaining 5% for validation
 
-train_data = data[:train_portion]
+#train_data = data[:train_portion]
 test_data = data[train_portion:train_portion + test_portion]
-val_data = data[train_portion + test_portion:]
+#val_data = data[train_portion + test_portion:]
 
 for entry in test_data[:3]:
     input_text = format_input(entry)
