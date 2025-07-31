@@ -5,7 +5,6 @@ from instruction_fine_tuning import format_input
 import tiktoken
 import json
 
-
 tokenizer = tiktoken.get_encoding("gpt2")
 print(tokenizer.encode("<|endoftext|>", allowed_special={"<|endoftext|>"}))
 torch.manual_seed(123)
